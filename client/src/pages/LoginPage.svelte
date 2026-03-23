@@ -39,7 +39,7 @@
 
 <section class="panel stack" style="max-width:420px;margin:0 auto">
   <h2>Iniciar sesion</h2>
-  <p class="muted">Ingresa tus credenciales del backend Node + JWT.</p>
+  <p class="muted">Ingresa tus credenciales </p>
 
   {#if error}
     <p class="error">{error}</p>
