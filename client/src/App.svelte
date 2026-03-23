@@ -69,3 +69,4 @@
       <ProfilePage displayName={displayName} onLogout={logout} />
     {/if}
   </main>
+  </div>
