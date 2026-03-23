@@ -1,37 +1,62 @@
-import { getToken } from '../utils/auth'
+import { app } from '../state/appState.svelte.js'
 
 export async function apiFetch(path, options = {}) {
-  const headers = options.headers || {}
-  const token = getToken()
-  if (token) headers['Authorization'] = 'Bearer ' + token
-  if (!headers['Content-Type']) headers['Content-Type'] = 'application/json'
-  const res = await fetch('/api' + path, { ...options, headers })
-  const body = await res.json().catch(() => null)
-  if (!res.ok) {
-    const err = new Error(body?.message || res.statusText || 'API error')
-    err.status = res.status
-    err.body = body
-    throw err
+  const headers = {
+    ...(options.headers || {}),
   }
+
+  if (app.token) {
+    headers.Authorization = 'Bearer ' + app.token
+  }
+
+  if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  const response = await fetch('/api' + path, {
+    ...options,
+    headers,
+  })
+
+  const body = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    const error = new Error(body?.message || 'Error de API')
+    error.status = response.status
+    error.body = body
+    throw error
+  }
+
   return body
 }
 
-// Nuevo: Método genérico para GraphQL
-export async function graphqlFetch(query, variables = {}) {
-  const token = getToken()
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: token ? 'Bearer ' + token : undefined,
-  }
-  const res = await fetch('/graphql', {
+export async function login(username, password) {
+  return apiFetch('/auth/login', {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ query, variables }),
+    body: JSON.stringify({ username, password }),
   })
-  const result = await res.json()
-  if (!res.ok || result.errors) {
-    const error = new Error(result.errors?.[0]?.message || 'GraphQL Error')
-    throw error
-  }
-  return result.data
+}
+
+export async function getProducts() {
+  return apiFetch('/products')
+}
+
+export async function createProduct(payload) {
+  return apiFetch('/products', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateProduct(productId, payload) {
+  return apiFetch('/products/' + productId, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteProduct(productId) {
+  return apiFetch('/products/' + productId, {
+    method: 'DELETE',
+  })
 }
