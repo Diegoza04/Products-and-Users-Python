@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 
 // Archivo Vite configurado, con el proxy para el backend REST, WebSocket y GraphQL
 export default defineConfig({
-  plugins: [react()],
+  plugins: [svelte()],
   server: {
     port: 5173,
     proxy: {
