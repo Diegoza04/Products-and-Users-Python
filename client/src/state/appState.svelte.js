@@ -1,6 +1,6 @@
 export const appRoutes = {
   PUBLIC_ROUTES: ['/login'],
-  PRIVATE_ROUTES: ['/products', '/profile'],
+  PRIVATE_ROUTES: ['/products', '/profile', '/admin/users'],
 }
 
 function decodeJwt(token) {

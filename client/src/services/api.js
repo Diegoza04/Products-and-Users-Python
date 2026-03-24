@@ -60,3 +60,27 @@ export async function deleteProduct(productId) {
     method: 'DELETE',
   })
 }
+
+export async function getUsers() {
+  return apiFetch('/admin/users')
+}
+
+export async function createUser(payload) {
+  return apiFetch('/admin/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateUserRole(userId, role) {
+  return apiFetch('/admin/users/' + userId, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  })
+}
+
+export async function deleteUser(userId) {
+  return apiFetch('/admin/users/' + userId, {
+    method: 'DELETE',
+  })
+}

@@ -3,11 +3,13 @@
   import LoginPage from './pages/LoginPage.svelte'
   import ProductsPage from './pages/ProductsPage.svelte'
   import ProfilePage from './pages/ProfilePage.svelte'
+  import AdminUsersPage from './pages/AdminUsersPage.svelte'
   import { app, appRoutes, navigate, clearAuth } from './state/appState.svelte.js'
 
   // Derived UI values
   let displayName = $derived(app.user?.username || 'Invitado')
   let isAuthed = $derived(Boolean(app.user && app.token))
+  let isAdmin = $derived(app.user?.role === 'admin')
 
   function goTo(path) {
     navigate(path)
@@ -46,6 +48,10 @@
     if (authed && route === '/login') {
       navigate('/products', true)
     }
+
+    if (route === '/admin/users' && !isAdmin) {
+      navigate('/products', true)
+    }
   })
 </script>
 
@@ -56,7 +62,7 @@
     <NavBar
       route={app.route}
       isAuthed={isAuthed}
-      isAdmin={app.user?.role === 'admin'}
+      {isAdmin}
       onNavigate={goTo}
       onLogout={logout}
     />
@@ -77,6 +83,8 @@
       <ProductsPage />
     {:else if app.route === '/profile'}
       <ProfilePage displayName={displayName} onLogout={logout} />
+    {:else if app.route === '/admin/users'}
+      <AdminUsersPage />
     {:else}
       <p>Ruta no encontrada.</p>
     {/if}
