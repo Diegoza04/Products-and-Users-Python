@@ -133,5 +133,5 @@ Se usa para props en componentes reutilizables.
 - `npm run dev`
 - `npm start`
 
-## Nota para la evaluacion
+## Nota para cuando vayas a levantar el repositorio
 Para probar todo el flujo de la practica, el backend debe estar levantado junto con MongoDB. Si MongoDB no esta disponible, el frontend abre pero las llamadas API fallan.
