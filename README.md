@@ -1,188 +1,137 @@
-# Portal de productos con autenticacion,chat en tiempo real,manejo de ordenes y usuarios con Graphql
+# Portal de Productos y Usuarios (Svelte 5 + Node.js)
 
-## Link al repositorio:https://github.com/Diegoza04/poducts-and-live-chat
+Repositorio: https://github.com/Diegoza04/Products-and-users-Svelte.git 
 
-Portal de productos con autenticación y chat en tiempo real.  
-El proyecto está dividido en dos partes: un frontend (client) construido con React + Vite y un backend (server) con Express, MongoDB y Socket.IO.  
-Permite a los usuarios registrarse, iniciar sesión, ver productos, gestionar carrito y comunicarse mediante un chat en tiempo real autenticado.
+Aplicacion fullstack con:
+- Frontend SPA en Svelte 5 (Vite)
+- Backend en Node.js + Express + JWT + MongoDB
+- CRUD de productos y gestion de usuarios por rol
 
-## Características principales
+## Instalacion y ejecucion
 
-- Autenticación JWT (registro / login).
-- Catálogo de productos (CRUD en el backend; listado y visualización en el frontend).
-- Carrito de compras (persistencia lógica del lado cliente y operaciones desde la API).
-- Chat en tiempo real con Socket.IO (mensajería instantánea entre usuarios autenticados).
-- Interfaz moderna con React 19, TailwindCSS y animaciones con Framer Motion.
-- API REST estructurada + WebSockets en un mismo servidor.
-- Proxy de desarrollo (el frontend consume la API y el socket sin configuración adicional).
+### Requisitos
+- Node.js 18+
+- npm 8+
+- MongoDB local o MongoDB Atlas
 
-## Esquema de GraphQL
-
-El proyecto utiliza GraphQL para gestionar la comunicación entre el servidor y el cliente. A continuación, se detalla el esquema actual:
-
-### Definición del esquema (typeDefs):
-
-```graphql
-export const typeDefs = gql`
-  type User {
-    id: ID!
-    username: String!
-    role: String!
-    orders: [Order]
-  }
-
-  type Product {
-    id: ID!
-    title: String!
-    description: String
-    price: Float!
-    image: String
-  }
-
-  type Order {
-    id: ID!
-    user: User!
-    items: [OrderItem!]!
-    status: String!
-    createdAt: String!
-    total: Float!
-  }
-
-  type OrderItem {
-    product: Product!
-    quantity: Int!
-    price: Float!
-  }
-
-  type Query {
-    products: [Product!]
-    orders: [Order!]
-    order(id: ID!): Order
-    users: [User!]!
-  }
-
-  type Mutation {
-    addOrder(items: [OrderInput!]!): Order!
-    updateOrderStatus(id: ID!, status: String!): Order
-    deleteUser(id: ID!): String
-    updateUserRole(id: ID!, role: String!): User
-  }
-
-  input OrderInput {
-    product: ID!
-    quantity: Int!
-  }
-`;
+### 1) Clonar repositorio
+```bash
+git clone https://github.com/Diegoza04/poducts-and-live-chat.git
+cd poducts-and-live-chat
 ```
 
-### Queries y Mutations principales
-
-#### Queries:
-- **`products`**: Obtiene la lista de productos disponibles.
-- **`orders`**: Recupera la lista de pedidos realizados.
-- **`order(id: ID!)`**: Busca un pedido específico por su ID.
-- **`users`**: Devuelve la lista de usuarios registrados.
-
-#### Mutations:
-- **`addOrder(items: [OrderInput!]!)`**: Añade un nuevo pedido con los ítems especificados.
-- **`updateOrderStatus(id: ID!, status: String!)`**: Actualiza el estado de un pedido existente.
-- **`deleteUser(id: ID!)`**: Elimina un usuario según su ID.
-- **`updateUserRole(id: ID!, role: String!)`**: Modifica el rol de un usuario.
-
-### Decisiones de diseño
-- Se implementó GraphQL con Apollo Server para una gestión eficiente de las operaciones del backend.
-- Se dividieron las operaciones en queries y mutations para mejorar la estructura y claridad del esquema.
-- El esquema está diseñado para admitir roles (usuarios y administradores) mediante autenticación avanzada.
-
-
-## Gestión de usuarios (solo administradores)
-
-Esta funcionalidad permite a los administradores gestionar los usuarios de la plataforma. Las operaciones principales son:
-
-- **Consultar usuarios**: Visualizar la lista de usuarios registrados en el sistema.
-- **Eliminar usuarios**: Permitir que el administrador elimine cuentas innecesarias o no autorizadas.
-- **Modificar usuarios**: Actualizar información, como roles o permisos.
-
-> **Nota:** Estas funciones están protegidas mediante autenticación y roles. Solo los administradores pueden acceder a estas rutas o mutations.
-
-## Gestión de pedidos (solo administradores)
-
-Los pedidos realizados por los usuarios pueden ser gestionados por los administradores para garantizar el seguimiento adecuado. Las operaciones incluyen:
-
-- **Visualización de pedidos**: Acceso a la lista de pedidos realizados, incluyendo datos del usuario y estado del pedido.
-- **Actualización de estados**: Los administradores pueden cambiar el estado de un pedido (pendiente, en proceso, completado, cancelado, etc.).
-- **Cancelación de pedidos**: Posibilidad de realizar la cancelación de pedidos en caso de inconsistencias o solicitudes de los usuarios.
-
-> **Nota:** Estas operaciones están restringidas por un middleware de autenticación, asegurando que solo el rol de administrador pueda acceder a estas funcionalidades.
-
-## Estructura del proyecto
-
-```
-/
-├── client/   # Frontend (React + Vite + Tailwind + Socket.IO client)
-├── server/   # Backend (Express + Mongoose + JWT + Socket.IO server + Apollo/server + Graphql-Tag)
-├── README.md # (este archivo)
+### 2) Configurar backend
+Entrar a `server/` y crear archivo `.env`:
+```env
+PORT=3000
+MONGO_URI=mongodb://127.0.0.1:27017/practica1
+JWT_SECRET=tu_clave_jwt
 ```
 
-### client/
-Frontend SPA:
-- Rutas protegidas (react-router-dom).
-- Manejo de token y roles (jwt-decode).
-- Chat con reconexión y scroll automático.
-- Estilos utilitarios con TailwindCSS.
-- Animaciones con Framer Motion.
+Instalar y ejecutar backend:
+```bash
+cd server
+npm install
+npm run dev
+```
 
-Más detalles en [client/README.md](client/README.md).
+### 3) Configurar frontend
+En otra terminal:
+```bash
+cd client
+npm install
+npm run dev
+```
 
-### server/
-Backend API + WebSocket:
-- Endpoints para autenticación (`/api/auth/*`), productos (`/api/products/*`), chat (`/api/chat/history`).
-- Conexión a MongoDB (Mongoose).
-- Hash de contraseñas (bcryptjs).
-- Emisión y recepción de eventos de chat (Socket.IO).
-- Configuración por variables de entorno.
+Frontend: http://localhost:5173
 
-Más detalles en [server/README.md](server/README.md).
+## Estructura principal
+```text
+client/
+  src/
+    components/
+    pages/
+    services/
+    state/
+server/
+  routes/
+  models/
+  middleware/
+```
 
-#### Tecnologías de GraphQL:
-- **@apollo/server**: Configuración del servidor GraphQL.
-- **graphql**: Biblioteca base para esquemas y definiciones de resolutores.
-- **graphql-tag**: Utilidad para parsear y usar queries GraphQL.
+## Runas de Svelte 5 usadas
 
-## Tecnologías
+### $state
+Se usa para estado reactivo local y global.
+- `client/src/state/appState.svelte.js`: token, usuario, ruta actual, productos, errores/mensajes globales.
+- `client/src/pages/LoginPage.svelte`: formulario y estado de carga/error.
+- `client/src/pages/ProductsPage.svelte`: filtros, modal, formulario de producto, carga.
+- `client/src/pages/AdminUsersPage.svelte`: listado, formularios y estado de guardado/carga.
+- `client/src/components/ProductForm.svelte`: campos del formulario.
 
-| Capa     | Tecnologías |
-|----------|-------------|
-| Frontend | React 19, Vite 7, TailwindCSS, Framer Motion, Socket.IO Client |
-| Backend  | Node.js, Express, Mongoose, Socket.IO, JWT, bcryptjs |
-| GraphQL  | Apollo Server, GraphQL.js                            |
-| Base de datos | MongoDB                                         |
-| Autenticación | JSON Web Tokens (JWT)                          |
+### $derived
+Se usa para valores derivados del estado.
+- `client/src/App.svelte`: `displayName`, `isAuthed`, `isAdmin`.
+- `client/src/pages/ProductsPage.svelte`: `filteredProducts`, `productCount`, permisos por rol.
+- `client/src/pages/AdminUsersPage.svelte`: contador de usuarios.
+- `client/src/components/ProductCard.svelte`: texto de estado activo/no activo.
+- `client/src/pages/ProfilePage.svelte`: rol y preview del token.
 
+### $effect
+Se usa para side effects y sincronizacion.
+- `client/src/App.svelte`:
+  - persistencia de JWT en sessionStorage
+  - escuchar back/forward del navegador
+  - guardas de rutas segun autenticacion y rol
+  - auto cierre de toast global
+- `client/src/pages/ProductsPage.svelte`: recargar productos cuando cambian rol/filtros clave.
+- `client/src/pages/AdminUsersPage.svelte`: cargar usuarios cuando entra admin.
+- `client/src/components/ProductForm.svelte`: sincronizar formulario al editar/crear.
 
-## Flujo general
+### $props
+Se usa para props en componentes reutilizables.
+- `client/src/components/NavBar.svelte`
+- `client/src/components/ProductCard.svelte`
+- `client/src/components/ProductForm.svelte`
+- `client/src/pages/LoginPage.svelte`
+- `client/src/pages/ProfilePage.svelte`
 
-1. El usuario se registra o inicia sesión (token JWT recibido).
-2. El token se guarda en el navegador (localStorage).
-3. El frontend consume `/api/products` para listar productos.
-4. El chat se conecta vía Socket.IO enviando `auth: { token }`.
-5. Los mensajes se persisten y el historial se obtiene desde `/api/chat/history`.
-6. Operaciones del carrito y productos via REST (según permisos y rol).
+## Backend utilizado (endpoints y roles)
 
+### Autenticacion
+- `POST /api/auth/login` (publico)
+- `POST /api/auth/register` (publico)
 
+### Productos
+- `GET /api/products` (publico)
+- `POST /api/products` (admin)
+- `PUT /api/products/:id` (admin)
+- `DELETE /api/products/:id` (admin)
 
-## Seguridad 
+### Administracion de usuarios (solo admin)
+- `GET /api/admin/users`
+- `POST /api/admin/users`
+- `PUT /api/admin/users/:id` (cambio de rol)
+- `DELETE /api/admin/users/:id`
 
-- Tokens firmados con `JWT_SECRET`.
-- Contraseñas hash con bcryptjs (no se almacenan en texto plano).
-- CORS restringido por origen.
-- Rutas protegidas en frontend (redirección a login si falta token).
-- Middleware de autenticación en backend (ver rutas protegidas).
+### Pedidos admin (solo admin)
+- `GET /api/admin/orders`
+- `GET /api/admin/orders/:status`
 
-## Chat en tiempo real 
-- Handshake autenticado: el cliente adjunta el token.
-- Eventos:
-  - Cliente emite: `chat:message`
-  - Servidor difunde a todos los conectados autenticados.
-- Reconexión automática configurada en el cliente (intentos y delays).
-- Historial disponible vía REST para consistencia al recargar.
+## Roles requeridos
+- `user`: acceso a login, perfil y vista de productos.
+- `admin`: ademas de lo anterior, puede crear/editar/borrar productos y gestionar usuarios.
+
+## Scripts utiles
+
+### Frontend (`client/package.json`)
+- `npm run dev`
+- `npm run build`
+- `npm run lint`
+
+### Backend (`server/package.json`)
+- `npm run dev`
+- `npm start`
+
+## Nota para la evaluacion
+Para probar todo el flujo de la practica, el backend debe estar levantado junto con MongoDB. Si MongoDB no esta disponible, el frontend abre pero las llamadas API fallan.
