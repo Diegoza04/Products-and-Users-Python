@@ -20,6 +20,14 @@
     navigate('/login', true)
   }
 
+  function clearGlobalError() {
+    app.globalError = ''
+  }
+
+  function clearGlobalMessage() {
+    app.globalMessage = ''
+  }
+
   // Persist JWT token (Svelte 5 runes: must live in a component)
   $effect(() => {
     if (app.token) sessionStorage.setItem('jwt', app.token)
@@ -53,6 +61,24 @@
       navigate('/products', true)
     }
   })
+
+  $effect(() => {
+    const err = app.globalError
+    if (!err) return
+    const timeoutId = window.setTimeout(() => {
+      if (app.globalError === err) app.globalError = ''
+    }, 4200)
+    return () => window.clearTimeout(timeoutId)
+  })
+
+  $effect(() => {
+    const msg = app.globalMessage
+    if (!msg) return
+    const timeoutId = window.setTimeout(() => {
+      if (app.globalMessage === msg) app.globalMessage = ''
+    }, 2600)
+    return () => window.clearTimeout(timeoutId)
+  })
 </script>
 
 <div class="app-shell">
@@ -68,15 +94,23 @@
     />
   </header>
 
-  <main class="page">
+  <div class="toast-stack" aria-live="polite">
     {#if app.globalError}
-      <p class="error">{app.globalError}</p>
+      <div class="toast toast-error" role="alert">
+        <span>{app.globalError}</span>
+        <button type="button" class="toast-close" onclick={clearGlobalError}>x</button>
+      </div>
     {/if}
 
     {#if app.globalMessage}
-      <p class="success">{app.globalMessage}</p>
+      <div class="toast toast-success" role="status">
+        <span>{app.globalMessage}</span>
+        <button type="button" class="toast-close" onclick={clearGlobalMessage}>x</button>
+      </div>
     {/if}
+  </div>
 
+  <main class="page">
     {#if app.route === '/login'}
       <LoginPage onLoggedIn={() => navigate('/products')} />
     {:else if app.route === '/products'}
@@ -121,21 +155,46 @@
     margin: 0 auto;
   }
 
-  .error {
-    background: #fee2e2;
-    color: #991b1b;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    border: 1px solid #fecaca;
-    margin: 0 0 1rem 0;
+  .toast-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    gap: 0.5rem;
+    z-index: 50;
+    width: min(360px, calc(100vw - 2rem));
   }
 
-  .success {
+  .toast {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+  }
+
+  .toast-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+  }
+
+  .toast-success {
     background: #dcfce7;
     color: #166534;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    border: 1px solid #bbf7d0;
-    margin: 0 0 1rem 0;
+    border-color: #bbf7d0;
+  }
+
+  .toast-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    min-width: 1rem;
+    line-height: 1;
   }
 </style>

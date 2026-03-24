@@ -11,6 +11,8 @@
 
   let search = $state('')
   let onlyActive = $state(false)
+  let minPrice = $state('')
+  let maxPrice = $state('')
   let showForm = $state(false)
   let editingProduct = $state(null)
   let detailProduct = $state(null)
@@ -21,15 +23,20 @@
 
   let filteredProducts = $derived.by(() => {
     const term = search.trim().toLowerCase()
+    const min = minPrice === '' ? null : Number(minPrice)
+    const max = maxPrice === '' ? null : Number(maxPrice)
 
     return app.products.filter((product) => {
+      const price = Number(product.price || 0)
       const active = product.isActive !== false
       const matchesState = onlyActive ? active : true
       const matchesTerm = term
         ? (product.title || '').toLowerCase().includes(term)
         : true
+      const matchesMin = min === null || (!Number.isNaN(min) && price >= min)
+      const matchesMax = max === null || (!Number.isNaN(max) && price <= max)
 
-      return matchesState && matchesTerm
+      return matchesState && matchesTerm && matchesMin && matchesMax
     })
   })
 
@@ -127,12 +134,14 @@
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:.5rem">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:.5rem">
       <input bind:value={search} placeholder="Buscar por nombre" />
       <label style="display:flex;align-items:center;gap:.5rem;padding:.3rem .2rem">
         <input style="width:auto" type="checkbox" bind:checked={onlyActive} />
         Solo activos
       </label>
+      <input bind:value={minPrice} type="number" min="0" step="0.01" placeholder="Precio min" />
+      <input bind:value={maxPrice} type="number" min="0" step="0.01" placeholder="Precio max" />
     </div>
 
     {#if localError}

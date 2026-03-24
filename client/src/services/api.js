@@ -21,6 +21,14 @@ export async function apiFetch(path, options = {}) {
   const body = await response.json().catch(() => null)
 
   if (!response.ok) {
+    if (response.status === 401){
+      app.globalError = 'Sesion expirada o credenciales invalidas (401)'
+    } else if (response.status === 403) {
+      app.globalError = 'No tienes permisos para esta accion (403)'
+    } else if (response.status >= 500) {
+      app.globalError = 'Error interno del servidor. Intenta nuevamente mas tarde'
+    }
+    
     const error = new Error(body?.message || 'Error de API')
     error.status = response.status
     error.body = body
