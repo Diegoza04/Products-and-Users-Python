@@ -16,8 +16,8 @@ Aplicacion fullstack con:
 
 ### 1) Clonar repositorio
 ```bash
-git clone https://github.com/Diegoza04/poducts-and-live-chat.git
-cd poducts-and-live-chat
+git clone https://github.com/Diegoza04/Products-and-users-Svelte.git 
+cd Products-and-users-Svelte.git 
 ```
 
 ### 2) Configurar backend
