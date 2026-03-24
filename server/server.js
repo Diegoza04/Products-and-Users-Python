@@ -19,6 +19,7 @@ import { JWT_SECRET } from './config.js'; // Clave secreta importada de config.j
 import authRoutes from './routes/authroutes.js';
 import productRoutes from './routes/productroutes.js';
 import chatRoutes from './routes/chatroutes.js';
+import adminRoutes from './routes/adminroutes.js';
 import { authenticateSocket } from './middleware/authenticateJWT.js';
 
 dotenv.config();
@@ -74,6 +75,7 @@ async function startGraphQLServer() {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Configuración de Socket.IO para operaciones de chat
 io.use(authenticateSocket);
